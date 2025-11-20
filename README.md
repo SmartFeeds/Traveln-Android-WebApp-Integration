@@ -1,14 +1,91 @@
-Android WebView Integration for Traveln.ai
-This Android project demonstrates a robust integration of a WebView to load the Traveln.ai web application. It features a custom WebViewClient (TravelnWebViewClient) designed for seamless, plug-and-play usage, handling authentication, session persistence, and UI loading indicators automatically.✨ Features•Secure Authentication: Automatically injects API keys and user identity information into HTTP headers, avoiding sensitive data in URL query parameters.•Session Persistence: Captures and re-applies cookies to maintain user sessions across page loads and redirects.•Plug & Play: The TravelnWebViewClient is self-contained and can be attached to any WebView with a single static method call.•Modern UI/UX:•Includes a ProgressBar that visually represents page loading status.•Handles both hardware and software back button presses for intuitive navigation through the WebView's history.•Uses EdgeToEdge for a modern, full-screen display.•Optimized WebView Configuration: Pre-configures WebSettings for optimal performance and compatibility, enabling JavaScript, DOM storage, and third-party cookies.🚀 Getting StartedPrerequisites•Android Studio•An Android device or emulatorInstallation & Setup1.Clone the repository:git clone <your-repository-url>2.Open the project in Android Studio.3.Configure Authentication Credentials: Open the WebView.java file and replace the placeholder credentials with your actual user data and API key.Java// C:/Users/user/AndroidStudioProjects/Webview/app/src/main/java/com/example/webview/activities/WebView.java
+# Android WebView Integration for Traveln.ai
 
-public class WebView extends AppCompatActivity {
-// ...
-// Replace these placeholder values
-private final static String AUTH_API_KEY = "ADD--YOUR--KEY--IN--HERE";
-private final static String AUTH_USER_FIRST_NAME = "John";
-private final static String AUTH_USER_LAST_NAME = "Doe";
-private final static String AUTH_USER_PHONE = "+96170123123";
-private final static String AUTH_USER_EMAIL = "user@traveln.ai";
-private final static String AUTH_USER_PICTURE = "https://app.traveln.ai/static/medias/common/logo.png";
-// ...
-}4.Build and run the application on your device or emulator.🛠️ How It WorksThe core of this project is the TravelnWebViewClient, which extends the standard WebViewClient to add specialized functionality for interacting with the Traveln.ai platform.WebView.java (The Activity)This activity is responsible for:•Initializing the views (WebView, ProgressBar, MaterialButton).•Attaching the TravelnWebViewClient to the WebView instance in initWebView().•Passing the required authentication credentials to the client.•Handling back navigation. If the WebView can go back, it navigates through its history. Otherwise, the activity closes.TravelnWebViewClient.java (The Custom Client)This class is the powerhouse of the integration. Its attach() method performs several key operations:1.Configures WebSettings:•Enables JavaScript (setJavaScriptEnabled).•Enables DOM Storage (setDomStorageEnabled).•Allows mixed content (setMixedContentMode).•Enables cookies and third-party cookies for session management.2.Builds & Injects Headers:•A Map<String, String> of headers is created using the provided API key and user details.•The Authorization: Api-Key ... header is used for secure API calls.•Custom TRAVELN-* headers are added to silently log the user in.•These headers are automatically injected on the initial page load and on every subsequent navigation (shouldOverrideUrlLoading).3.Manages Loading UI:•It attaches a WebChromeClient to listen for onProgressChanged events, updating the ProgressBar's visibility and progress accordingly.4.Preserves Cookies:•After a page finishes loading (onPageFinished), it retrieves the cookies for the current URL.•These cookies are stored and re-applied on subsequent URL loads to ensure the user's session is maintained.📚 DependenciesThis project relies on the following key dependencies from its build.gradle.kts or build.gradle file:•androidx.appcompat:appcompat•com.google.android.material:material•androidx.activity:activity
+This project provides a clean, production‑ready WebView integration that loads the Traveln.ai web app and handles authentication, session persistence, and modern UI feedback out of the box.
+
+## Features
+- Secure authentication via HTTP headers using `Authorization: Api-Key ...`
+- Silent login with `TRAVELN-*` user identity headers
+- Session persistence through captured and re-applied cookies
+- Progress bar that reflects page loading status
+- Back navigation support for both hardware and UI buttons
+- Edge-to-edge layout for a modern, full-screen experience
+- Optimized `WebSettings` (JavaScript, DOM storage, mixed content, caching)
+
+## Project Structure
+- `app/src/main/java/com/example/webview/activities/MainActivity.java`: Entry point launching the WebView activity
+- `app/src/main/java/com/example/webview/activities/WebView.java`: Activity wiring views and credentials
+- `app/src/main/java/com/example/webview/utils/web_clients/TravelnWebViewClient.java`: Custom `WebViewClient` with headers, cookies, and progress handling
+- `app/src/main/AndroidManifest.xml`: Activity declarations and app configuration
+
+## Requirements
+- Android Studio
+- Android device or emulator (API 26+)
+- JDK 8+ (project sets `sourceCompatibility`/`targetCompatibility` to Java 8)
+
+## Setup
+1. Clone the repository:
+   ```bash
+   git clone <your-repository-url>
+   ```
+2. Open the project in Android Studio.
+3. Configure authentication credentials in `app/src/main/java/com/example/webview/activities/WebView.java`:
+   ```java
+   // Replace placeholders with your real credentials
+   private final static String AUTH_API_KEY = "ADD--YOUR--KEY--IN--HERE";
+   private final static String AUTH_USER_FIRST_NAME = "John";
+   private final static String AUTH_USER_LAST_NAME = "Doe";
+   private final static String AUTH_USER_PHONE = "+96170123123";
+   private final static String AUTH_USER_EMAIL = "user@traveln.ai";
+   private final static String AUTH_USER_PICTURE = "https://app.traveln.ai/static/medias/common/logo.png";
+   ```
+4. Build and run on a device or emulator.
+
+## How It Works
+- `WebView` activity initializes views and attaches the client with credentials (`app/src/main/java/com/example/webview/activities/WebView.java`:60‑71).
+- `TravelnWebViewClient.attach(...)` configures `WebSettings`, enables cookies, and loads the base URL with headers (`app/src/main/java/com/example/webview/utils/web_clients/TravelnWebViewClient.java`:80‑136).
+- On navigation, headers are re-injected and cookies are preserved (`TravelnWebViewClient.java`:139‑154).
+- After each page finishes loading, cookies are captured and synced, and the progress bar is hidden (`TravelnWebViewClient.java`:158‑176).
+
+## Configuration Details
+- Base URL is defined in `TravelnWebViewClient` as `https://app.traveln.ai/` (`app/src/main/java/com/example/webview/utils/web_clients/TravelnWebViewClient.java`:42).
+- The following identity headers are sent when present:
+  - `TRAVELN-FIRST-NAME`, `TRAVELN-LAST-NAME`, `TRAVELN-EMAIL`, `TRAVELN-PHONE`, `TRAVELN-PICTURE` (`TravelnWebViewClient.java`:190‑196).
+- Authorization header format: `Authorization: Api-Key <YOUR_API_KEY>` (`TravelnWebViewClient.java`:187‑189).
+
+## Build Config
+- `minSdk`: 26, `targetSdk`: 34 (`app/build.gradle`:11‑13)
+- Key dependencies:
+  - `androidx.appcompat:appcompat` (`gradle/libs.versions.toml`:15)
+  - `com.google.android.material:material` (`gradle/libs.versions.toml`:16)
+  - `androidx.activity:activity` (`gradle/libs.versions.toml`:17)
+  - `androidx.constraintlayout:constraintlayout` (`gradle/libs.versions.toml`:18)
+
+## Usage Example
+Attach the client in your activity to any `WebView` and `ProgressBar`:
+```java
+TravelnWebViewClient.attach(
+        this,
+        mWebView,
+        mProgressBar,
+        AUTH_API_KEY,
+        AUTH_USER_FIRST_NAME,
+        AUTH_USER_LAST_NAME,
+        AUTH_USER_PICTURE,
+        AUTH_USER_PHONE,
+        AUTH_USER_EMAIL
+);
+```
+
+## Security Notes
+- Do not place secrets in URLs or query parameters; headers are used instead.
+- Keep production API keys out of source control. Prefer using secure storage or build-time injection.
+- Review mixed content settings if you serve non-HTTPS assets.
+
+## Troubleshooting
+- Blank page: verify network connectivity and a valid API key.
+- Not logged in: confirm identity headers and backend acceptance.
+- Cookies not persisting: ensure cookies are enabled on the device.
+- File chooser issues: check platform permissions and `WebChromeClient` handling.
+
+## License
+- Proprietary or internal use unless otherwise specified by the repository owner.
